@@ -42,8 +42,35 @@ function loadData() {
                  '</li>'
                 )
         })
-    });
+    }).error(function(e) {
+        $nytHeaderElem.text('NYTimes Articles about your city can not be loaded due to SOME ERROR!!!');
+        }
 
+    );
+
+    var wikiRequestTimeout = setTimeout(function(){ // because theres no "fail" in ajax jsonp request
+        $wikiElem.text("failed to get wikipedia resources");
+    }, 8000);
+
+    var wikiUrl = 'http://en.wikipediaZXZX.org/w/api.php?action=opensearch&search=' + cityStr + '&format=json&callback=wikiCallback';
+
+    $.ajax({
+        url: wikiUrl,
+        dataType: "jsonp",
+        // jsonp: "callback", // to change callback name from url above
+
+        success: function(response) {
+            var articleList = response[1];
+
+            articleList.forEach(function(articleStr) {
+                var url = 'http://en.wikipedia.org/wiki/' + articleStr;
+
+                $wikiElem.append('<li><a href="' + url + '">'+ articleStr +'</a></li>');
+            });
+
+            clearTimeout(wikiRequestTimeout); // success - stop timeout
+        }
+    });
 
     return false;
 }
